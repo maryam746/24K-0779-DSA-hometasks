@@ -3,168 +3,169 @@ using namespace std;
 
 class Node {
 public:
-    string item;
     int id;
-    int price;
-    Node *next;
-    Node *prev;
+    string cname;
+    string rname;
+    Node* next;
 
-    Node(string i, int p, int id) : item(i), id(id), price(p), next(nullptr), prev(nullptr) {}
+    Node(int i, string c, string r) : id(i), cname(c), rname(r), next(nullptr) {}
 };
 
-class Ecommercestore {
+class TicketSystem {
 private:
-    Node *head;
+    Node* head;
 
 public:
-    Ecommercestore() : head(nullptr) {}
+    TicketSystem() : head(nullptr) {}
 
-    void additematfront(string i, int p, int id) {
-        Node *newnode = new Node(i, p, id);
-        newnode->next = head;
-        if (head != nullptr) {
-            head->prev = newnode;
-        }
-        head = newnode;
-    }
-
-    void additematend(string i, int p, int id) {
-        Node *newnode = new Node(i, p, id);
+    void issuetail(int i, string c, string r) {
+        Node* newnode = new Node(i, c, r);
         if (!head) {
             head = newnode;
+            newnode->next = head;
             return;
         }
-        Node *temp = head;
-        while (temp->next != nullptr) {
+        Node* temp = head;
+        while (temp->next != head) {
             temp = temp->next;
         }
         temp->next = newnode;
-        newnode->prev = temp;
+        newnode->next = head;
     }
 
-    void delfront() {
-        if (!head) return;
-        Node *temp = head;
-        head = head->next;
-        if (head != nullptr) {
-            head->prev = nullptr;
+    void issuefront(int i, string c, string r) {
+        Node* newnode = new Node(i, c, r);
+        if (!head) {
+            head = newnode;
+            newnode->next = head;
+            return;
         }
-        delete temp;
+        Node* temp = head;
+        while (temp->next != head) {
+            temp = temp->next;
+        }
+        temp->next = newnode;
+        newnode->next = head;
+        head = newnode;
     }
 
-    void delend() {
+    void cancelticket(int i) {
         if (!head) return;
-        if (head->next == nullptr) {
+        Node* temp = head;
+        Node* prev = nullptr;
+        do {
+            if (temp->id == i) {
+                if (temp == head) {
+                    cancelhead();
+                    return;
+                }
+                prev->next = temp->next;
+                delete temp;
+                return;
+            }
+            prev = temp;
+            temp = temp->next;
+        } while (temp != head);
+    }
+
+    void cancelhead() {
+        if (!head) return;
+        if (head->next == head) {
             delete head;
             head = nullptr;
             return;
         }
-        Node *temp = head;
-        while (temp->next != nullptr) {
-            temp = temp->next;
+        Node* last = head;
+        while (last->next != head) {
+            last = last->next;
         }
-        temp->prev->next = nullptr;
+        Node* temp = head;
+        head = head->next;
+        last->next = head;
         delete temp;
     }
 
-    void searchbyid(int id) {
-        Node *temp = head;
-        while (temp != nullptr) {
-            if (temp->id == id) {
-                cout << temp->item << " - $" << temp->price << endl;
-                return;
-            }
-            temp = temp->next;
-        }
-        cout << "Item not found" << endl;
-    }
-
-    void updatepricebyid(int id, int np) {
-        Node *temp = head;
-        while (temp != nullptr) {
-            if (temp->id == id) {
-                temp->price = np;
-                return;
-            }
-            temp = temp->next;
-        }
-    }
-
-    void displayfront() {
-        Node *temp = head;
-        while (temp != nullptr) {
-            cout << temp->item << " - $" << temp->price << endl;
-            temp = temp->next;
-        }
-    }
-
-    void displayend() {
-        Node *temp = head;
-        if (!temp) return;
-        while (temp->next != nullptr) {
-            temp = temp->next;
-        }
-        while (temp != nullptr) {
-            cout << temp->item << " - $" << temp->price << endl;
-            temp = temp->prev;
-        }
-    }
-
-    void countitems() {
-        Node *temp = head;
-        int count = 0;
-        while (temp != nullptr) {
-            count++;
-            temp = temp->next;
-        }
-        cout << "Total items: " << count << endl;
-    }
-
-    void expensiveit() {
+    void searchticket(int i) {
         if (!head) return;
-        Node *temp = head;
-        Node *expensive = head;
-        while (temp != nullptr) {
-            if (temp->price > expensive->price) {
-                expensive = temp;
+        Node* temp = head;
+        do {
+            if (temp->id == i) {
+                cout << "Ticket ID: " << temp->id << ", Customer: " << temp->cname 
+                     << ", Ride: " << temp->rname << endl;
+                return;
             }
             temp = temp->next;
+        } while (temp != head);
+        cout << "Ticket not found" << endl;
+    }
+
+    void display() {
+        if (!head) {
+            cout << "No tickets" << endl;
+            return;
         }
-        cout << "Most expensive item: " << expensive->item << " - $" << expensive->price << endl;
+        Node* temp = head;
+        cout << "Tickets:" << endl;
+        do {
+            cout << "ID: " << temp->id << ", Customer: " << temp->cname 
+                 << ", Ride: " << temp->rname << endl;
+            temp = temp->next;
+        } while (temp != head);
+    }
+
+    void counttickets() {
+        if (!head) {
+            cout << "Total tickets: 0" << endl;
+            return;
+        }
+        int cnt = 0;
+        Node* temp = head;
+        do {
+            cnt++;
+            temp = temp->next;
+        } while (temp != head);
+        cout << "Total tickets: " << cnt << endl;
+    }
+
+    void nextticket(int i) {
+        if (!head) return;
+        Node* temp = head;
+        do {
+            if (temp->id == i) {
+                cout << "Next Ticket -> ID: " << temp->next->id << ", Customer: " 
+                     << temp->next->cname << ", Ride: " << temp->next->rname << endl;
+                return;
+            }
+            temp = temp->next;
+        } while (temp != head);
+        cout << "Ticket not found" << endl;
     }
 };
 
 int main() {
-    Ecommercestore cart;
+    TicketSystem t;
 
-    cart.additematend("Laptop", 1000, 1);
-    cart.additematend("Phone", 700, 2);
-    cart.additematfront("Headphones", 150, 3);
-    cart.additematend("Tablet", 400, 4);
-
-    cout << "Cart (front to end):" << endl;
-    cart.displayfront();
-
-    cout << endl << "Cart (end to front):" << endl;
-    cart.displayend();
-
+    t.issuetail(1, "Ali", "Roller Coaster");
+    t.issuetail(2, "Sara", "Ferris Wheel");
+    t.issuefront(3, "VIP Ahmed", "Haunted House");
+    t.display();
     cout << endl;
-    cart.searchbyid(2);
 
-    cart.updatepricebyid(2, 750);
-    cout << "After price update:" << endl;
-    cart.displayfront();
+    t.searchticket(2);
+    t.nextticket(2);
+    cout << endl;
 
-    cart.delfront();
-    cout << endl << "After deleting front:" << endl;
-    cart.displayfront();
+    t.cancelticket(1);
+    cout << "After cancelling ID 1:" << endl;
+    t.display();
+    cout << endl;
 
-    cart.delend();
-    cout << endl << "After deleting end:" << endl;
-    cart.displayfront();
+    t.cancelhead();
+    cout << "After cancelling front:" << endl;
+    t.display();
+    cout << endl;
 
-    cart.countitems();
-    cart.expensiveit();
+    t.counttickets();
 
     return 0;
 }
